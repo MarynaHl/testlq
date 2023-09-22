@@ -6,7 +6,8 @@
 
 `npm install @wdio/browserstack-service --save-dev`
 
-![Uploading Screenshot 2023-09-22 at 03.05.35.png…]()
+
+<img width="430" alt="Screenshot 2023-09-22 at 03 05 35" src="https://github.com/MarynaHl/testlq/assets/75501308/cc99b040-8434-4c29-971f-63a0ee95c8fd">
 
 
 
