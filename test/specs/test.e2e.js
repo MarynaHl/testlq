@@ -247,11 +247,96 @@ it('Test case #8 Valid Checkout', async () => {
 });
 
 // Skip 'Test case #9 Checkout without products'
-it.skip('Test case #9 Checkout without products', async () => {
-    // ...
-});
+    it.skip('Test case #9 Checkout without products', async () => {
+         // Preconditions
+         await browser.url(`https://www.saucedemo.com/`);
+         await LoginPage.login('standard_user', 'secret_sauce');
+         await browser.pause(2000);
+         await expect(browser).toHaveUrl('https://www.saucedemo.com/inventory.html');
+         
+         // Step 1
+         // Click on the 'Cart' button, check if cart page is displayed
+         const cartLink = await $('.shopping_cart_link');
+         // Check if cart is empty
+         await expect(cartLink).toHaveChildren(0);
+         await cartLink.click();
+         await browser.pause(2000);
+         await expect(browser).toHaveUrl('https://www.saucedemo.com/cart.html');
+
+         // Step 2
+         // Click on the 'Checkout' button, check if user stays at the 'Cart' page
+         const checkoutButton = await $('#checkout');
+         await checkoutButton.click();
+         await expect(browser).toHaveUrl('https://www.saucedemo.com/cart.html');
+         // Check if error message 'Cart is empty' is displayed
+    })
 
 // Test case #10(optional) Add a product to the Cart if the Cart is not empty
-it('Test case #10(optional) Add a product to the Cart if the Cart is not empty', async () => {
-    // ...
-});
+it('Test case #10(optional) Add to the Cart product if Cart is not empty', async () => {
+        // Preconditions
+         await browser.url(`https://www.saucedemo.com/`);
+         await LoginPage.login('standard_user', 'secret_sauce');
+         await browser.pause(2000);
+         await expect(browser).toHaveUrl('https://www.saucedemo.com/inventory.html');
+         // Step 1 - Add the product to the Cart
+         const productAddToCart = await $('#add-to-cart-sauce-labs-backpack');
+         await productAddToCart.click();
+         const productAddToCartName = 'Sauce Labs Backpack';
+         // Check if product is on the Cart
+        await $('.shopping_cart_link').click();
+        await browser.pause(2000);
+        await expect(browser).toHaveUrl('https://www.saucedemo.com/cart.html');
+        const cartList = await $('.cart_list');
+        await expect(cartList).toHaveTextContaining(productAddToCartName);
+
+        // Step 2 - Logout
+        const burgerButton = await $('#react-burger-menu-btn');
+        await burgerButton.click();
+        await browser.pause(2000);
+        // Check if burger menu are expanded and 4 items are displayed
+        const burgerMenu = await $('//*[@id="menu_button_container"]/div/div[2]/div[1]/nav');
+        await expect(burgerMenu).toBeDisplayed();
+        await expect(burgerMenu).toHaveChildren(4);
+        const logoutButton = await $('#logout_sidebar_link');
+        await logoutButton.click();
+        await browser.pause(2000);
+        // Check when Logout if User is redirecred to the "Login" page, "Username" and "Password" fields are empty
+        await expect(browser).toHaveUrl('https://www.saucedemo.com/');
+        await browser.pause(2000);
+        const userNameField = await $('#user-name');
+        await expect(userNameField).toHaveValue('');
+        const passwordField = await $('#password');
+        await expect(passwordField).toHaveValue('');
+
+        // Step 3 Login with the same data
+        await LoginPage.login('standard_user', 'secret_sauce');
+        await browser.pause(2000);
+        // Check when Login user is redirected to the inventory page. Products and cart are displayed
+        await expect(browser).toHaveUrl('https://www.saucedemo.com/inventory.html');
+
+        // Step 4 Add the new product to the Cart
+        const productAddToCartNew = await $('#add-to-cart-sauce-labs-bike-light');
+        const cartValue = await $('.shopping_cart_badge');
+        //Check if number near the cart at the top right increase by 1
+        let isCartNotEmpty = await cartValue.isDisplayed();
+        if(isCartNotEmpty) {
+            let startNum = Number(await cartValue.getText());
+            await productAddToCartNew.click();
+            let newNum = startNum + 1;
+            let newNumText = newNum.toString();
+            await browser.pause(2000);
+            await expect(cartValue).toHaveText(newNumText);
+        }
+        else {
+            await productAddToCartNew.click();
+            await browser.pause(2000);
+            await expect(cartValue).toHaveText('1');
+        }
+        // Check if the new product is added to cart
+        const productAddToCartNameNew = 'Sauce Labs Bike Light';
+        await $('.shopping_cart_link').click();
+        await browser.pause(2000);
+        await expect(browser).toHaveUrl('https://www.saucedemo.com/cart.html');
+        await expect(cartList).toHaveTextContaining(productAddToCartNameNew);
+
+    })
